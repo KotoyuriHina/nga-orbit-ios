@@ -1,0 +1,54 @@
+
+name: Build NGA Orbit IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project NGAReader.xcodeproj \
+            -scheme NGAReader
+
+      - name: Build unsigned app
+        run: |
+          xcodebuild \
+            -project NGAReader.xcodeproj \
+            -scheme NGAReader \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NGAReader.app Payload/
+          zip -r NGAOrbit-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: NGAOrbit-unsigned-IPA
+          path: NGAOrbit-unsigned.ipa
+          retention-days: 14
