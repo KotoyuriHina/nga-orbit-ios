@@ -458,8 +458,10 @@ public enum ResponseDecoder {
             let user = users[uid] ?? [:]
             let username = string(user["username"] ?? user["name"] ?? row["author"] ?? row["username"])
             let author = username.hasPrefix("#anony_") ? "匿名用户" : (username.isEmpty ? (uid.isEmpty ? "用户" : "UID \(uid)") : HTMLText.decode(username))
-            let avatar = BBCode.avatarURL(string(user["avatar"] ?? user["avatar_url"] ?? user["avatarUrl"] ?? user["face"] ?? user["icon"]
-                ?? row["avatar"] ?? row["avatar_url"] ?? row["avatarUrl"] ?? row["face"] ?? row["icon"]))
+            let avatarKeys = ["avatar", "avatar_url", "avatarUrl", "face", "icon"]
+            let userAvatar = avatarKeys.lazy.compactMap { user[$0] }.first
+            let rowAvatar = avatarKeys.lazy.compactMap { row[$0] }.first
+            let avatar = BBCode.avatarURL(string(userAvatar ?? rowAvatar))
             let profile = userProfile(uid: uid, author: author, avatar: avatar, record: user)
             let images = attachmentImageURLs(row["attachs"] ?? row["attachments"] ?? row["attach"])
             let scoreTuple = string(row["score"]).split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
