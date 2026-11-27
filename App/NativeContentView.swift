@@ -128,7 +128,7 @@ struct NativeContentView: View {
             var hex = String(s.dropFirst())
             if hex.count == 3 { hex = hex.map { "\($0)\($0)" }.joined() }
             if hex.count == 6, let v = UInt64(hex, radix: 16) {
-                return Color(red: CGFloat((v >> 16) & 0xFF) / 255, green: CGFloat((v >> 8) & 0xFF) / 255, blue: CGFloat(v & 0xFF) / 255)
+                return Color(red: Double((v >> 16) & 0xFF) / 255, green: Double((v >> 8) & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
             }
         }
         let named: [String: Color] = [
